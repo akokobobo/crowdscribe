@@ -71,10 +71,22 @@ app.get('/stories', function(req, res) {
 });
 
 /**
+ * Creates a story
+ * @param {String} message The first post body message
+ * @param {Number} maxPlayers, the maximum ammount of players that may join
+ * @param {String} name, optional story name
+ * @returns {Number} the story id created.
+ */
+app.get('/story/create', function(req, res) {
+  
+});
+
+/**
  * Returns a story object by id
  * @param {Array} fields of story to be returned. ID is passed by default
  */
 app.get('/story/:id', function(req, res) {
+  
 });
 
 /**
