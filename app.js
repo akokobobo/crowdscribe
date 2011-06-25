@@ -81,11 +81,40 @@ app.get('/story/create', function(req, res) {
   
 });
 
+
+
+/**
+ * Creates a story
+ * @param {String} message The first post body message
+ * @param {Number} maxPlayers, the maximum ammount of players that may join
+ * @param {String} name, optional story name
+ * @returns {Number} the story id created.
+ */
+app.get('/story/create', function(req, res) {
+  
+});
+
 /**
  * Returns a story object by id
  * @param {Array} fields of story to be returned. ID is passed by default
  */
 app.get('/story/:id', function(req, res) {
+  
+});
+
+/**
+ * Joins a story
+ * @returns {Bool} true if joined success.
+ * 
+ */
+app.get('/story/:id/join', function(req, res) {
+  
+});
+
+/**
+ * Explicitly leaves a story. Users are droped of the story if they timeout
+ */
+app.get('/story/:id/leave', function(req, res) {
   
 });
 
