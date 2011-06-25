@@ -63,11 +63,57 @@ app.post('/singin', function(req, res) {
 /**
  * AUTH REQUIRED
  * Returns all active stories
+ * @param {Array} fields of story to be returned. ID is passed by default
  * @returns {result: [story]}
  */
 app.get('/stories', function(req, res) {
+  
 });
 
+/**
+ * Returns a story object by id
+ * @param {Array} fields of story to be returned. ID is passed by default
+ */
+app.get('/story/:id', function(req, res) {
+});
+
+/**
+ * Returns all users playing on a story
+ * @param {Array} fields needed of user. ID is passed by default
+ */
+app.get('/story/:id/users', function(req, res) {
+  
+});
+
+/**
+ * Returns all current posts that might be penting for votes
+ */
+app.get('/story/:id/posts', function(req, res) {
+  
+});
+
+/**
+ * Returns the story stream that has been submitted so far.
+ */
+app.get('/story/:id/stream', function(req, res) {
+  
+});
+
+/**
+ * Submits a post
+ * @param {String} The post body message
+ */
+app.post('/story/:id/post', function(req, res) {
+  
+});
+
+/**
+ * Submits a vote on a post
+ * @param {Number} Post ID
+ */
+app.post('/story/:id/vote', function(req, res) {
+  
+});
 
 
 app.listen(3000);
