@@ -56,7 +56,7 @@ app.post('/signup', function(req, res) {
  * @param {String} password
  * @returns {JSON} { error: 'Username and Password combo no good' } || {result: 'success', token: '2121ffg'}
  */
-app.post('/singin', function(req, res) {
+app.post('/signin', function(req, res) {
   
 });
 
