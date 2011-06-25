@@ -6,8 +6,12 @@
     <link rel="stylesheet" href="/stylesheets/default.css" />
   </head>
   <body>
-    {{>_header}}
-    {{{yield}}}
-    {{>_footer}}
+    <div id="container">
+      {{>_header}}
+    
+      {{{yield}}}
+    
+      {{>_footer}}
+    </div>
   </body>
 </html>
