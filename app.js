@@ -37,5 +37,35 @@ app.get('/', function(req, res){
   });
 });
 
+/**
+ * Register user and log them in automatically
+ * @param {String} username
+ * @param {String} password
+ * @returns {JSON} { error: 'Username/Password no good, username Already taken' } || {result: 'success', token: '2121ffg'}
+ */
+app.post('/signup', function(req, res) {
+  
+});
+
+/**
+ * Logs in a user.
+ * @param {String} username
+ * @param {String} password
+ * @returns {JSON} { error: 'Username and Password combo no good' } || {result: 'success', token: '2121ffg'}
+ */
+app.post('/singin', function(req, res) {
+  
+});
+
+/**
+ * AUTH REQUIRED
+ * Returns all active stories
+ * @returns {result: [story]}
+ */
+app.get('/stories', function(req, res) {
+});
+
+
+
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
