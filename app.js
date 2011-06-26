@@ -1,12 +1,13 @@
-
 /**
  * Module dependencies.
  */
 
 var express = require('express');
+
 var redisModule = require('redis');
 var redis = redisModule.createClient();
 redis.select(1);
+this.redis = redis;
 
 var app = module.exports = express.createServer();
 
@@ -33,10 +34,28 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', function(req, res){
-  res.render('index', {
-		locals: {
-			title: 'Express'
-		}
+  redis.get('index:some', function(e, r) {
+    console.log("r: ", r);
+    if(r !== null) {
+      var id = parseInt(r.toString());
+      id++;
+      redis.set("index:some", id, function() {
+        console.log("id:", id);
+        res.render('index');
+      });
+    } else {
+      redis.set("index:some", 0, function(e, r) {
+        console.log("id:", id, r);
+        res.render('index');
+      });
+    }
+  });
+  
+  redis.get('index:some', function(e, r) {
+    
+    console.log(r);
+    
+    
   });
 });
 
