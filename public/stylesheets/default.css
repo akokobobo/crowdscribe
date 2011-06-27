@@ -1,8 +1,9 @@
-body { padding: 50px; font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+body { padding: 50px; font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; background: #E3E3E3; }
 a { color: #00B7FF; }
+h1, h2, h3 { text-shadow: 1px 1px #FFF; }
 h1 { font-size: 36px; }
 h2 { font-size: 24px; }
-h3 { font-size: 18px; }
+h3 { font-size: 18px; text-transform: uppercase; font-weight: bold; }
 
 header, footer { display: block; }
 header { padding: 0 0 15px 0; margin: 0 0 25px 0; border-bottom: 1px solid #ccc; }
@@ -10,7 +11,7 @@ footer { padding: 15px 0 0 0; margin: 25px 0 0 0; border-top: 1px solid #ccc; }
 #container { width: 960px; margin: 0 auto; }
 #browse h3 { padding-bottom: 15px; }
 #active-stories { overflow: hidden; margin-left: -10px; }
-#active-stories .story { display: block; float: left; width: 275px; height:150px; margin: 10px 30px 10px 10px; border: 1px #888 solid; box-shadow: 0 0 10px #888; }
+#active-stories .story { display: block; background: #FFF; float: left; width: 275px; height:150px; margin: 10px 30px 10px 10px; border: 1px #888 solid; box-shadow: 0 0 10px #888; }
 #active-stories .story a { display: block; height: 100%; position: relative; text-decoration: none; }
 #active-stories .story p { padding:15px; margin:0; font-size: 24px; }
 #active-stories .story .meta { font-size: 12px; color: #FFFFFF; text-decoration: none; text-transform: uppercase; width: 265px; padding: 5px; position:absolute; bottom:0; background: rgba(0,0,0,0.9); }
