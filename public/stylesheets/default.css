@@ -22,3 +22,10 @@ footer { padding: 15px 0 0 0; margin: 25px 0 0 0; border-top: 1px solid #ccc; }
 #active-stories .story .meta .players { display:block; float:right; }
 #active-stories .story .timer { position: absolute; color: #FFF; font-size: 11px; text-align:center; padding: 3px; width: 24px; background: #000; top:0px; right:0px; }
 #active-stories .story:hover .timer { background: #00B7FF; }
+
+#story h2 { padding: 0 0 15px 0; }
+#story .stream { margin: 0 0 25px 0; }
+#story .stream li { display: inline; line-height: 2; font-size: 16px; text-indent: 5px hanging; padding: 5px; background: #f3f3f3; }
+#story .current-round {}
+#story .current-round .entries {}
+#story .current-round .entries li {}
