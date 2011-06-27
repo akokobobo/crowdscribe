@@ -34,29 +34,7 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', function(req, res){
-  redis.get('index:some', function(e, r) {
-    console.log("r: ", r);
-    if(r !== null) {
-      var id = parseInt(r.toString());
-      id++;
-      redis.set("index:some", id, function() {
-        console.log("id:", id);
-        res.render('index');
-      });
-    } else {
-      redis.set("index:some", 0, function(e, r) {
-        console.log("id:", id, r);
-        res.render('index');
-      });
-    }
-  });
-  
-  redis.get('index:some', function(e, r) {
-    
-    console.log(r);
-    
-    
-  });
+  res.render('index');
 });
 
 /**
