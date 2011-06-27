@@ -96,7 +96,7 @@ app.get('/story/create', function(req, res) {
  * @param {Array} fields of story to be returned. ID is passed by default
  */
 app.get('/story/:id', function(req, res) {
-  
+  res.render('story');
 });
 
 /**
