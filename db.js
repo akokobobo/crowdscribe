@@ -2,7 +2,7 @@ var app = require('../app');
 var redis = app.redis;
 
 this.save = function(model, cb) {
-  if(model.id() == null) {
+  if(model.id() === null) {
     getIndex(model.name(), function(index) {
       model.setId(index);
       save(model, cb);
