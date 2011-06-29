@@ -1,21 +1,27 @@
-this.extend = function(model, attributes) {
-    model.prototype = new Base(attributes);
+/**
+ * Extends Base to model parameter.
+ * 
+ */
+this.extend = function(model, options) {
+    var modelPrototype = model.prototype;
+    
+    model.prototype = new Base(options);
+    //attrs no longer needed
+    delete options['attrs'];
+    
+    //overwrite all Base prototype functions defined by model.
+    for(var i in modelPrototype) {
+        model.prototype[i] = modelPrototype[i];
+    }
 }
 
-function Base(attributes) {
-    this._setInitialAttributes(attributes);
+function Base(options) {
+    if(options['attrs'])
+        this._createAttrAccesors(options['attrs']);
 }
-
-Base.prototype.name = function() { return 'Base'; }
 
 Base.prototype._attrs = [];
 
-Base.prototype._setInitialAttributes = function(_attributes) {
-    for(var i in _attributes) {
-        this._createAttrAccessor(i);
-        this[i](_attributes[i]);
-    }
-}
 
 Base.prototype.attributes = function(_attributes) {
     var attributes = {};
@@ -25,17 +31,19 @@ Base.prototype.attributes = function(_attributes) {
     return attributes;
 }
 
-Base.prototype._createAttrAccessor = function(attributeName) {
+Base.prototype._createAttrAccesors = function(attrs) {
     var context = this;
-    if(!context[attributeName]) {
-        context[attributeName] = (function(attrName) {
-            var currentValue;
+    for(var i = 0; i < attrs.length; i++) {
+        var attrName = attrs[i];
+        //Creating accessor function
+        this[attrName] = (function() {
+            var _value;
             return function(value) {
-                if(value !== undefined) currentValue = value;
-                return currentValue;
+                if(value !== undefined) _value = value;
+                return _value;
             }
-        })(attributeName);
-        context['_attrs'].push(attributeName);
+        })();
+        this._attrs.push(attrName);
     }
 }
 

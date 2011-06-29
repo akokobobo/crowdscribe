@@ -14,7 +14,7 @@ this.create = function(message, userId, storyId, cb) {
     cb(post);
   });
 };
-
+/*
 function Post(attributes) {
   var _id = attributes['id'] || null;
   var _message = attributes['message'] || null;
@@ -71,10 +71,29 @@ function Post(attributes) {
     //to be used only when saving model
     setID: function(__id) { _id = __id; }
   }
+}*/
+
+function Post(message, user) {
+  this.attributes({name: 'Post', message: message, user: user});
 }
 
-//function Post() {}
-//Base.extend(Post, {name: 'Post', user: null, message: null, story: null, voteCount: 0});
+Base.extend(Post, {
+  attrs: ['user', 'story', 'message', 'name'],
+  //Private Variables
+  _submitedVotes: {},
+  _voteCount: 0,
+  
+  
+  vote: function(user) {
+    if(!this.hasVoted(user)) {
+      this._submitedVotes[user.id()] = user;
+      this._voteCount++;
+    }
+  },
+  hasVoted: function(user) {
+    return (_submitedVotes[user.id()] !== undefined && _submitedVotes[user.id()].id() !== this.user().id());
+  }
+});
 
 
 

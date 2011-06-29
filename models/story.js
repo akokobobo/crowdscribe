@@ -71,7 +71,7 @@ function Story(attributes) {
     return false;
   }
   
-  var updateIndex = 0;
+  var versionIndex = 0;
   
   //Updates story state
   function update() {
@@ -79,7 +79,6 @@ function Story(attributes) {
     if(isWaitingForPlayers()) {
       //state switches to round starting if minimum players have join the game
       if(_playerList.count() >= minPlayers()) {
-        updateIndex++;
         setState('ROUND_STARTING');
         preCalculateExpirationTimers();
       }
@@ -109,8 +108,10 @@ function Story(attributes) {
   var expirationTimer = {};
   function preCalculateExpirationTimers() {
     var timeNow = now();
+    var previousTimer = 0;
     for(var i in TIMER) {
-      roundTimers[i] = timeNow + TIMER[i];
+      roundTimers[i] = timeNow + TIMER[i] + previousTimer;
+      previousTimer = TIMER[i];
     }
   }
   
@@ -135,6 +136,27 @@ function Story(attributes) {
   //Gets time elapsed from the last roundTimeStamp to now
   function getTimeElapsed() {
     return now() - _roundTimeStamp;
+  }
+  
+  //====================================
+  // Round Over. 
+  //  *Figure out players points.
+  //    loop through players and
+  //    detect if they have posted. give points.
+  //    detect if they have voted. give points.
+  //  *Figure out winner.
+  //    Detect post with highest votes.
+  //    In case there are 2 or More Posts with equal vote count. 1 Will be picked randomly.
+  //    Give Extra points to winner.
+  //  *Figure out runner up.
+  //    Detect post with highest votes after the winner.
+  //    In Case Winner was picked randomly, runner up is automatically the post that lost the random draw.
+  //    In Case there are multiple runner ups. One is picked at random.
+  //  *Set State to 'waiting to players'.
+  //  -Update versionIndex.
+  //====================================
+  function roundIsOver() {
+    
   }
   
   //Public Interface
