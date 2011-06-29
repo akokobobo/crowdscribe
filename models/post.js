@@ -71,6 +71,10 @@ function Post(attributes) {
     //to be used only when saving model
     setID: function(__id) { _id = __id; }
   }
-  
 }
+
+//function Post() {}
+//Base.extend(Post, {name: 'Post', user: null, message: null, story: null, voteCount: 0});
+
+
 
