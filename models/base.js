@@ -17,7 +17,7 @@ this.extend = function(model, options) {
 
 function Base(options) {
     if(options['attrs'])
-        this._createAttrAccesors(options['attrs']);
+        this._createAttrAccessors(options['attrs']);
 }
 
 Base.prototype._attrs = [];
@@ -31,7 +31,7 @@ Base.prototype.attributes = function(_attributes) {
     return attributes;
 }
 
-Base.prototype._createAttrAccesors = function(attrs) {
+Base.prototype._createAttrAccessors = function(attrs) {
     var context = this;
     for(var i = 0; i < attrs.length; i++) {
         var attrName = attrs[i];
