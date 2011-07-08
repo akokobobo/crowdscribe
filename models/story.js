@@ -5,7 +5,7 @@ var MAX_MAX_PLAYERS = 20;
 var defaultFirstPost = 'It was a dark and stormy night.';
 var POST_CHAR_LIMIT = 500;
 
-this.create = function(maxPlayers, firstPost, name) {
+module.exports.create = function(maxPlayers, firstPost, name) {
   
 }
 

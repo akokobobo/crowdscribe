@@ -1,13 +1,16 @@
 /**
  * Module dependencies.
  */
-
+require('./nativeOverloads.js');
 var express = require('express');
 
 var redisModule = require('redis');
 var redis = redisModule.createClient();
 redis.select(1);
 this.redis = redis;
+
+var test = require('./tests.js');
+test.start();
 
 var app = module.exports = express.createServer();
 

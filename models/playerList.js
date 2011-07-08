@@ -2,7 +2,7 @@
 /**
  * Creates an empty player list
  */
-this.create = function(maxPlayers) {
+module.exports.create = function(maxPlayers) {
     return new PlayerList(maxPlayers);
 }
 

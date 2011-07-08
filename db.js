@@ -1,43 +1,28 @@
-var app = require('../app');
+var app = require('./app.js');
 var redis = app.redis;
 
-this.save = function(model, cb) {
-  if(model.id() === null) {
-    getIndex(model.name(), function(index) {
-      model.setId(index);
-      save(model, cb);
-    });
-  } else {
-    save(model, cb);
-  }
-}
+this.store = store;
+this.getUniqueId = getUniqueId;
 
-this.find = function() {  }
-
-function save(model, cb) {
-  redis.HMSET(
-      model.name() + ':' + model.id(), //Key
-      model.attr(), // Value
-      cb //callback
-    );
-}
-
-function getIndex(modelName, cb) {
-  getOrCreateIndex(modelName, function(index) {
-    updateIndexCount(modelName, index, cb);
+function getUniqueId(name, cb) {
+  var key = name+':index';
+  redis.get(key, function(e, r) {
+    var index = 1;
+    if(r !== null)
+      index = parseInt(r.toString()) + 1;
+      
+    //record index, no worries about callback. Everything should go well ;)
+    store(key, index);
+    cb(index);
   });
 }
 
-function getOrCreateIndex(modelName, cb) {
-  redis.get('index:' + modelName, function(e, r) {
-    if(r !== null) {
-      cb(parseInt(r.toString()) + 1);
-    } else {
-      cb(1);
-    }
-  });
-}
-
-function updateIndexCount(modelName, index, cb) {
-  redis.set("index:" + modelName, index, function() {  cb(index); });
+function store(key, value, cb) {
+  var valueType = (typeof value).toLowerCase();
+  if((typeof cb).toLowerCase() !== 'function') cb = function(){};
+  
+  if(valueType === 'string' || valueType === 'number')
+    redis.set(key, value, function(e, r){ cb(r) });
+  else
+    redis.HMSET(key, value, function(e, r){ cb(r) });
 }
