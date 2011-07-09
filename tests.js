@@ -33,31 +33,37 @@ function testRoundSession(done) {
     title("Testing RoundSession...");
     var maxRounds = 2;
     RoundSession.create(maxRounds, function(round) {
-        equal(round.max(), maxRounds, "Max rounds " + round.max());
-        equal(round.current(), 1, "Current round is 1");
-        ok(round.isIdle(), "Round is IDLE");
-        round.start();
-        ok(round.isStarting(), "Round is Starting");
+        equal(round.max(), maxRounds, "Max rounds " + round.max());    
+        runRoundSession(round, function() {
+            runRoundSession(round, done, true);
+        });
+    });
+}
+
+function runRoundSession(round, cb, checkOver) {
+    equal(round.current(), 1, "Current round is 1");
+    ok(round.isIdle(), "Round is IDLE");
+    round.start();
+    ok(round.isStarting(), "Round is Starting");
+    title("Session Ends in " + round.sessionEndsIn());
+    setTimeout(function() {
+        ok(round.isWaitingForPosts(), "Waiting for Posts");
         title("Session Ends in " + round.sessionEndsIn());
         setTimeout(function() {
-            ok(round.isWaitingForPosts(), "Waiting for Posts");
+            ok(round.isWaitingForVotes(), "Waiting for Votes");
             title("Session Ends in " + round.sessionEndsIn());
+            
             setTimeout(function() {
-                ok(round.isWaitingForVotes(), "Waiting for Votes");
-                title("Session Ends in " + round.sessionEndsIn());
-                
-                setTimeout(function() {
+                if(checkOver)
                     ok(round.isOver(), "All rounds are over");
-                    
-                    
-                    done();
-                }, round.sessionEndsIn() + 10);
                 
+                
+                cb();
             }, round.sessionEndsIn() + 10);
-            //safe milisecond
+            
         }, round.sessionEndsIn() + 10);
-        
-    })
+        //safe milisecond
+    }, round.sessionEndsIn() + 10);
 }
 
 

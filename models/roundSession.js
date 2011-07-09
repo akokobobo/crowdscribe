@@ -13,16 +13,21 @@ var STATE = {
     WAITING_FOR_VOTES: 4
 }
 
+var one = (1).seconds();
 var five = (5).seconds();
 var ten = (10).seconds();
 var thirty = (30).seconds();
 var minute = (30).minutes();
-var time = ten;
+
+var time = one;
+
 var TIMERS = {
   ROUND_STARTING: time,
   POST: time, //1minute
   VOTE: time //1minute
 };
+
+var PREVENT_UPDATE = true;
 
 function RoundSession(maxRounds) {
     this.attributes({max: maxRounds, current: 1});
@@ -34,6 +39,7 @@ Base.extend(RoundSession, {
     _state: STATE.IDLE,
     _update: function() {
         //In case any of the state has expired, it will fall through the next case.
+        console.log("State is", this._state );
         switch(this._state) {
             case STATE.ROUND_STARTING:
                 //set round to 'waiting for posts' if 'round starting' has expired
@@ -57,11 +63,11 @@ Base.extend(RoundSession, {
     },
     _roundEnded: function() {
         this._setState(STATE.IDLE);
-        this.currentRound(this.currentRound() + 1);
+        this.current(this.current() + 1);
     },
-    _roundStartingExpired: function() { now() >= this._roundExpiration; },
-    _waitingForPostExpired: function() { now() >= this._postExpiration; },
-    _waitingForVoteExpired: function() { now() >= this._voteExpiration; },
+    _roundStartingExpired: function() { return now() >= this._roundExpiration; },
+    _waitingForPostExpired: function() { return now() >= this._postExpiration; },
+    _waitingForVoteExpired: function() { return now() >= this._voteExpiration; },
     _roundExpiration: 0,
     _postExpiration: 0,
     _voteExpiration: 0,
@@ -70,7 +76,7 @@ Base.extend(RoundSession, {
         this._roundExpiration = timeNow + TIMERS.ROUND_STARTING;
         this._postExpiration = this._roundExpiration + TIMERS.POST;
         this._voteExpiration = this._postExpiration + TIMERS.VOTE;
-        
+    
     },
     //Returns remaining timer (in ms) of the current session
     sessionEndsIn: function() {
@@ -89,6 +95,7 @@ Base.extend(RoundSession, {
             default:
             break;
         }
+        
         return timer;
     },
     start: function() {
@@ -98,7 +105,11 @@ Base.extend(RoundSession, {
             this._calculateExpirations();
         }
     },
-    state: function() { this._update(); return this._state; },
+    state: function(preventUpdate) {
+        if(preventUpdate !== true)
+            this._update();
+        return this._state;
+    },
     _setState: function(state) {
       this._state = state;  
     },
@@ -115,7 +126,7 @@ Base.extend(RoundSession, {
         return this.state() === STATE.WAITING_FOR_VOTES;
     },
     isOver: function() {
-        return this.isIdle() && this.currentRound() > this.maxRounds();
+        return this.isIdle() && this.current() > this.max();
     },
     save: function() { /*This model does not save*/ }
 });
