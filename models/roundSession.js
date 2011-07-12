@@ -13,13 +13,14 @@ var STATE = {
     WAITING_FOR_VOTES: 4
 }
 
+var halfSecond = (0.5).seconds();
 var one = (1).seconds();
 var five = (5).seconds();
 var ten = (10).seconds();
 var thirty = (30).seconds();
 var minute = (30).minutes();
 
-var time = one;
+var time = halfSecond;
 
 var TIMERS = {
   ROUND_STARTING: time,

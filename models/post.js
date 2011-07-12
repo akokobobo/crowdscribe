@@ -1,4 +1,5 @@
 var Base = require('./base.js');
+var MODEL_NAME = 'Post';
 
 /**
  * Creates and Saves a post.
@@ -13,9 +14,14 @@ module.exports.create = function(message, user, cb) {
   });
 };
 
+
+var find = exports.find = function(id, cb) {
+    Base.find(MODEL_NAME, id, cb);
+}
+
 function Post(message, userId) {
   //set default attributes
-  this.attributes({name: 'Post', message: message, userId: userId});
+  this.attributes({name: MODEL_NAME, message: message, userId: userId});
 }
 
 Base.extend(Post, {

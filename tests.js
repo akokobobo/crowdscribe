@@ -1,12 +1,15 @@
 var assert = require('assert');
 var redis = require('./app.js').redis;
 var Post = require('./models/post.js');
+var PostCollection = require('./models/postCollection.js');
 var RoundSession = require('./models/roundSession.js');
 
 module.exports.start = function() {
     testPosts(function() {
         testRoundSession(function() {
-            title("TESTS FINISHED");
+            testPostCollections(function() {
+                title("TESTS FINISHED");
+            });
         });
     });
     
@@ -40,6 +43,30 @@ function testRoundSession(done) {
     });
 }
 
+function testPostCollections(done) {
+    title("Testing PostCollections...");
+    PostCollection.create(function(pCollection){
+        ok(pCollection.id() > 0, "Id is " + pCollection.id() + " > 0");
+        pCollection.add("Hello There", 123, function(success) {
+            ok(success, "Post created and saved");
+            equal(pCollection.postIds().length, 1, "There is one post");
+            pCollection.add("Hello", 123, function(success) {
+                ok(!success, "Rejected post from same user");
+                
+                pCollection.add("Hello2", 1234, function(success) {
+                    ok(success, "Second post added");
+                    
+                    pCollection.save(function(success) {
+                        PostCollection.find(pCollection.id(), function(saveData) {
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    }); 
+}
+
 function runRoundSession(round, cb, checkOver) {
     equal(round.current(), 1, "Current round is 1");
     ok(round.isIdle(), "Round is IDLE");
@@ -65,6 +92,9 @@ function runRoundSession(round, cb, checkOver) {
         //safe milisecond
     }, round.sessionEndsIn() + 10);
 }
+
+
+
 
 
 //SOME UTILITY FUNCTIONS

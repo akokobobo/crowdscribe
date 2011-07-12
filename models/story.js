@@ -1,4 +1,5 @@
 var PlayerList = require('../playerList.js');
+var MODEL_NAME = 'Story';
 
 var MIN_PLAYERS = 6;
 var MAX_MAX_PLAYERS = 20;
@@ -8,19 +9,6 @@ var POST_CHAR_LIMIT = 500;
 module.exports.create = function(maxPlayers, firstPost, name) {
   
 }
-
-var STORY_STATE = {
-  WAITING_FOR_PLAYERS: 0x1,
-  ROUND_STARTING: 0x2,
-  WAITING_FOR_POSTS: 0x3,
-  WAITING_FOR_VOTES: 0x4
-};
-
-var TIMER = {
-  ROUND_STARTING: 1000,
-  POST: 1000, //1minute
-  VOTE: 1000 //1minute
-};
 
 function Story(attributes) {
   var _id, _userId, _maxPlayers, _maxRounds, _minPlayers;

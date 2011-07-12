@@ -1,5 +1,6 @@
 var Base = require('./base.js');
 var Post = require('./post.js');
+var MODEL_NAME = 'PostCollection';
 
 exports.create = function(cb) {
     var postCollection = new PostCollection();
@@ -8,8 +9,12 @@ exports.create = function(cb) {
     });
 }
 
+var find = exports.find = function(id, cb) {
+    Base.find(MODEL_NAME, id, cb);
+}
+
 function PostCollection() {
-    this.attributes({name: 'PostCollection', count: 0});
+    this.attributes({name: MODEL_NAME, count: 0});
 }
 
 Base.extend(PostCollection, {
@@ -19,22 +24,19 @@ Base.extend(PostCollection, {
         if(!this._hasPosted(userId)) {
             var pcContext = this;
             Post.create(message, userId, function(post) {
+                console.log("Created Post: ", post.id());
                 pcContext._userPosts[userId] = post;
-                cb(true);
+                cb(post !== null);
             });   
         } else cb(false);
-    },
-    find: function(postId) {
-      for(var i in this._userPosts) {
-        if(this._userPosts[i].id() == postId) return this._userPosts[i];
-      }
-      return null;
     },
     postIds: function() {
         var postIds = [];
         for(var i in this._userPosts) {
+            console.log(i, " : ",this._userPosts[i].id());
             postIds.push(this._userPosts[i].id());
         }
+        console.log('PostIDS ARE: ', postIds);
         return postIds;
     },
     _hasPosted: function(userId) {

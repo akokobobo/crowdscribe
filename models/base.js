@@ -23,6 +23,10 @@ module.exports.extend = function(model, options) {
         model.prototype[i] = options[i];
 }
 
+exports.find = function(modelName, id, cb) {
+    db.get(modelName + ':' +id, cb);
+}
+
 function Base() {}
 
 Base.prototype._attrs = ['id', 'name'];
@@ -55,11 +59,6 @@ Base.prototype._createAttrAccessor = function(attributeName) {
             }
         })();
     }
-}
-
-
-Base.prototype.create = function() {
-    
 }
 
 Base.prototype.save = function(cb) {

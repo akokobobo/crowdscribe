@@ -2,6 +2,7 @@ var app = require('./app.js');
 var redis = app.redis;
 
 this.store = store;
+this.get = getKey;
 this.getUniqueId = getUniqueId;
 
 function getUniqueId(name, cb) {
@@ -17,12 +18,18 @@ function getUniqueId(name, cb) {
   });
 }
 
+function getKey(key, cb) {
+  redis.HGETALL(key, function(e, r) {
+    cb(r);
+  });
+}
+
 function store(key, value, cb) {
   var valueType = (typeof value).toLowerCase();
   if((typeof cb).toLowerCase() !== 'function') cb = function(){};
   
   if(valueType === 'string' || valueType === 'number')
-    redis.set(key, value, function(e, r){ cb(r) });
+    redis.set(key, value, function(e, r){ cb(r); });
   else
-    redis.HMSET(key, value, function(e, r){ cb(r) });
+    redis.HMSET(key, value, function(e, r){ cb(r); });
 }
