@@ -3,12 +3,15 @@ var redis = require('./app.js').redis;
 var Post = require('./models/post.js');
 var PostCollection = require('./models/postCollection.js');
 var RoundSession = require('./models/roundSession.js');
+var Story = require('./models/story.js');
 
 module.exports.start = function() {
     testPosts(function() {
         testRoundSession(function() {
             testPostCollections(function() {
-                summary();
+                testStory(function() {
+                    summary();
+                });
             });
         });
     });
@@ -35,11 +38,10 @@ function testPosts(done) {
 function testRoundSession(done) {
     title("Testing RoundSession...");
     var maxRounds = 2;
-    RoundSession.create(maxRounds, function(round) {
-        equal(round.max(), maxRounds, "Max rounds " + round.max());    
-        runRoundSession(round, function() {
-            runRoundSession(round, done, true);
-        });
+    var round = RoundSession.create(maxRounds);
+    equal(round.max(), maxRounds, "Max rounds " + round.max());    
+    runRoundSession(round, function() {
+        runRoundSession(round, done, true);
     });
 }
 
@@ -91,6 +93,28 @@ function runRoundSession(round, cb, checkOver) {
         }, round.sessionEndsIn() + 10);
         //safe milisecond
     }, round.sessionEndsIn() + 10);
+}
+
+function testStory(done) {
+    title("Testing Story...");
+    //Create Story
+    var players = [123, 124, 125, 126, 127, 128, 129, 130];
+    var rounds = 6;
+    var maxPlayers = 5;
+    var storyTitle = "I woke up";
+    Story.create(maxPlayers, players[0], rounds, storyTitle, function(story) {
+        ok(story.id() > 0, "Story created with id: " + story.id());
+        equal(story.title(), storyTitle, "Story title is ok");
+        equal(story.maxPlayers(), maxPlayers, "Max Players is ok");
+        equal(story.currentRound(), 1, "current round is 1");
+        equal(story.state(), 1, "State is idle");
+        title("peak story data");
+        Story.find(story.id(), function(data) {
+            console.log(data);
+            
+            done();
+        });
+    });
 }
 
 

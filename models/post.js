@@ -48,6 +48,14 @@ Base.extend(Post, {
     if(userId === this.userId()) return true;
     if(this._submitedVotes[userId] !== undefined) return true;
     return false;
+  },
+  info: function() {
+    return {
+      id: this.id(),
+      voteCount: this.voteCount(),
+      userId: this.userId(),
+      message: this.message()
+    }
   }
 });
 

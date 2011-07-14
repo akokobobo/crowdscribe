@@ -43,6 +43,13 @@ Base.extend(PostCollection, {
         }
         return postIds;
     },
+    posts: function() {
+        var posts = [];
+        for(var i in this._userPosts) {
+            posts.push(this._userPosts[i].info());
+        }
+        return posts;
+    },
     hasPosted: function(userId) {
         if(this._userPosts[userId] !== undefined) return true; 
         return false;

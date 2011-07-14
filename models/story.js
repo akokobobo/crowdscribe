@@ -3,9 +3,11 @@ var PlayerList = require('./playerList.js');
 var RoundSession = require('./roundSession.js');
 var PostCollection = require('./postCollection.js');
 
+var stories = [];
+
 var MODEL_NAME = 'Story';
 
-var MIN_PLAYERS = 6;
+var MIN_PLAYERS = 3;
 var MAX_MAX_PLAYERS = 20;
 var DEFAULT_STORY_TITLE = 'It was a dark and stormy night.';
 var POST_CHAR_LIMIT = 500;
@@ -15,10 +17,23 @@ module.exports.create = function(maxPlayers, createdById, maxRounds, title, cb) 
   if(maxPlayers > MAX_MAX_PLAYERS) maxPlayers = MAX_MAX_PLAYERS;
   
   var story = new Story(maxPlayers, createdById, maxRounds, title);
-  story.save(function(succes) {
+  story.save(function(success) {
+    console.log(story, "saved");
+    stories.push(story);
     cb(story);
   })
   
+}
+
+/*module.exports.find = function(id, cb) {
+  for(var i = 0; i < stories.length; i++) {
+    if(stories[i].id() === id) return cb(stories[i]);
+  }
+  return cb(null);
+}*/
+
+var find = exports.find = function(id, cb) {
+    Base.find(MODEL_NAME, id, cb);
 }
 
 
@@ -59,8 +74,14 @@ Base.extend(Story, {
     else
       return false;
   },
+  posts: function() {
+    if(this.roundSession.isWaitingForVotes())
+      return this.postCollection().posts();
+    else
+      return [];
+  },
   post: function(message, uid, cb) {
-    if(this.roundSession().isWaitingForPosts())
+    if(message && this.roundSession().isWaitingForPosts())
       this.postCollection().add(message, uid, cb);
     else
       cb(false);
@@ -73,12 +94,19 @@ Base.extend(Story, {
     
     return false;
   },
+  currentRound: function(){
+    return this.roundSession().current();
+  },
+  state: function() {
+    return this.roundSession().state();
+  },
   
   //overwrites Base.save
   save: function(cb) {
     //Save Story Attributes.
     //Save currentPostCollection Attributes
-    //Save stroyStream 
+    //Save stroyStream
+    cb(this);
   }
 });
 

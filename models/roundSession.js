@@ -1,7 +1,7 @@
 var Base = require('./base.js');
 
-module.exports.create = function(maxRounds, cb) {
-    cb(new RoundSession(maxRounds));
+module.exports.create = function(maxRounds) {
+    return new RoundSession(maxRounds);
 }
 
 var STATE = {

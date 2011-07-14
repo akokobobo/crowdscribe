@@ -12,6 +12,10 @@ this.redis = redis;
 var test = require('./tests.js');
 test.start();
 
+var Story = require('./models/story.js');
+var Authenticate = require('./authenticate.js');
+var currentUser = module.exports.currentUser = null;
+
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -33,6 +37,8 @@ app.configure('development', function(){
 app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
+
+app.use(express.cookieParser());
 
 // Routes
 
@@ -67,7 +73,7 @@ app.post('/signin', function(req, res) {
  * @returns {result: [story]}
  */
 app.get('/stories', function(req, res) {
-  
+  res.send(Story.all());
 });
 
 /**
@@ -91,6 +97,16 @@ app.get('/story/create', function(req, res) {
  * @returns {Number} the story id created.
  */
 app.get('/story/create', function(req, res) {
+  if(!Authenticate.user(req.cookie.fb || "")) return res.send(Authenticate.INVALID_LOGIN)
+  
+  return Story.create(
+    req.body.maxPlayers,
+    currentUser,
+    req.body.maxRounds,
+    req.body.title,
+    function(story) {
+      res.send(story.id());
+  });
   
 });
 
@@ -99,7 +115,9 @@ app.get('/story/create', function(req, res) {
  * @param {Array} fields of story to be returned. ID is passed by default
  */
 app.get('/story/:id', function(req, res) {
-  res.render('story');
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story.info() : 'Story not found');
+  });
 });
 
 /**
@@ -108,29 +126,44 @@ app.get('/story/:id', function(req, res) {
  * 
  */
 app.get('/story/:id/join', function(req, res) {
-  
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story.join(currentUser) : 'Story not found');
+  });
 });
 
 /**
  * Explicitly leaves a story. Users are droped of the story if they timeout
  */
 app.get('/story/:id/leave', function(req, res) {
-  
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story.leave(currentUser) : 'Story not found');
+  });
 });
 
 /**
  * Returns all users playing on a story
  * @param {Array} fields needed of user. ID is passed by default
  */
-app.get('/story/:id/users', function(req, res) {
-  
+app.get('/story/:id/players', function(req, res) {
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story.playerList() : 'Story not found');
+  });
 });
 
 /**
  * Returns all current posts that might be penting for votes
  */
 app.get('/story/:id/posts', function(req, res) {
-  
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story : 'Story not found')
+    if(story) {
+      story.post(req.body('message'), currentUser, function(success) {
+	res.send(success);
+      });
+    } else {
+      res.send('Story not found');
+    }
+  });
 });
 
 /**
@@ -145,7 +178,15 @@ app.get('/story/:id/stream', function(req, res) {
  * @param {String} The post body message
  */
 app.post('/story/:id/post', function(req, res) {
-  
+  Story.find(req.params('id'), function(story) {
+    if(story) {
+      story.post(req.body('message'), currentUser, function(success) {
+	res.send(success);
+      });
+    } else {
+      res.send('Story not found');
+    }
+  });
 });
 
 /**
@@ -153,7 +194,9 @@ app.post('/story/:id/post', function(req, res) {
  * @param {Number} Post ID
  */
 app.post('/story/:id/vote', function(req, res) {
-  
+  Story.find(req.params('id'), function(story) {
+    res.send(story ? story.vote(req.body('postId'), currentUser) : 'Story not found')
+  });
 });
 
 
