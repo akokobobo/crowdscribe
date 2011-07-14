@@ -23,3 +23,7 @@ Number.prototype.minutes = Number.prototype.minute = function () {
 Number.prototype.seconds = Number.prototype.second = function () {
 	return this * 1000;
 }
+
+//Date
+if(Date['now'] === undefined)
+    Date['now'] = function() { return (new Date()).getTime(); }

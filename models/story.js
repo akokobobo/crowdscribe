@@ -1,130 +1,88 @@
-var PlayerList = require('../playerList.js');
+var Base = require('./base.js');
+var PlayerList = require('./playerList.js');
+var RoundSession = require('./roundSession.js');
+var PostCollection = require('./postCollection.js');
+
 var MODEL_NAME = 'Story';
 
 var MIN_PLAYERS = 6;
 var MAX_MAX_PLAYERS = 20;
-var defaultFirstPost = 'It was a dark and stormy night.';
+var DEFAULT_STORY_TITLE = 'It was a dark and stormy night.';
 var POST_CHAR_LIMIT = 500;
 
-module.exports.create = function(maxPlayers, firstPost, name) {
+module.exports.create = function(maxPlayers, createdById, maxRounds, title, cb) {
+  if(!title || title > POST_CHAR_LIMIT) title = DEFAULT_STORY_TITLE;
+  if(maxPlayers > MAX_MAX_PLAYERS) maxPlayers = MAX_MAX_PLAYERS;
+  
+  var story = new Story(maxPlayers, createdById, maxRounds, title);
+  story.save(function(succes) {
+    cb(story);
+  })
   
 }
 
-function Story(attributes) {
-  var _id, _userId, _maxPlayers, _maxRounds, _minPlayers;
-  var _currentRound = 1;
-  var _state = STORY_STATE.WAITING_FOR_PLAYERS;
-  //list of players.
-  var _playerList = PlayerList.create(_maxPlayers);
-  
-  //queues players to join the next round.
-  var idleList = [];
-  var _playerCount = 0;
-  
-  function id() { return _id; }
-  function maxPlayers() { return _maxPlayers; }
-  function minPlayers() { return _minPlayers; }
-  function playerCount() { return _playerList.playerCount(); }
-  function currentRound() { return _currentRound; }
-  function getState() { return _state; }
-  
-  //User Joins
-  function join(uid) {
-    if(isWaitingForPlayers())
-      return _playerList.add(uid);
+
+function Story(maxPlayers, createdById, maxRounds, title) {
+    this.attributes({
+      name: MODEL_NAME,
+      createdById: createdById,
+      maxPlayers: maxPlayers,
+      minPlayers: MIN_PLAYERS,
+      title: title,
+      roundSession: RoundSession.create(maxRounds),
+      postCollection: null
+    });
+}
+
+Base.extend(Story, {
+  attrs: ['createById', 'maxPlayers', 'minPlayers', 'roundSession', 'title'],
+  _playerList: {},
+  playerList: function(uid) {
+    var u = [];
+    for(var id  in this._playerList) {
+      u.push(id);
+    }
+    return u;
+  },
+  isRoomFull: function() { return (this.playerList().legnth === this.maxPlayers());  },
+  storyStream: [],
+  join: function(uid) {
+    if(this.roundSession.isIdle() && !this.isRoomFull()) {
+      this._playerList[uid] = Date.now();
+    }
+  },
+  leave: function(uid) {
+    if(this._playerList[uid] !== undefined) {
+      delete this._playerList[uid];
+      return true;
+    }
     else
       return false;
-  }
-  
-  //User leaves the story
-  function leave(uid) {
-    _playerList.remove(uid);
-  }
-  
-  function post(uid, userPost) {
-    if(isWaitingForPosts())
-      return _playerList.bindPost(uid, userPost);
+  },
+  post: function(message, uid, cb) {
+    if(this.roundSession().isWaitingForPosts())
+      this.postCollection().add(message, uid, cb);
     else
-      return false;
-  }
-  
-  function vote(uid, postId) {
-    if(isWaitingForVotes()) {
-      var u = _playerList.findByPostId(postId);
-      if (u) {
-        return u.post.vote(uid);
-      }
+      cb(false);
+  },
+  vote: function(postId, uid) {
+    if(this.roundSession().isWaitingForVotes()) {
+      var post = this.postCollection().find(postId);
+      if(post) return post.vote(uid);
     }
     
     return false;
+  },
+  
+  //overwrites Base.save
+  save: function(cb) {
+    //Save Story Attributes.
+    //Save currentPostCollection Attributes
+    //Save stroyStream 
   }
-  
-  var versionIndex = 0;
-  
-  //Updates story state
-  function update() {
-    //current state
-    if(isWaitingForPlayers()) {
-      //state switches to round starting if minimum players have join the game
-      if(_playerList.count() >= minPlayers()) {
-        setState('ROUND_STARTING');
-        preCalculateExpirationTimers();
-      }
-    } else if(isRoundStarting()) {
-      if(roundStartingHasExpired()) {
-        setState('WAITING_FOR_POSTS');
-      }
-    } else if(isWaitingForPosts()) {
-      if(waitingForPostsHasExpired()) {
-        setState('WAITING_FOR_VOTES');
-      }
-      
-    } else if(isWaitingForVotes()) {
-      if(waitingForVotesHasExpired()) {
-        roundIsOver();
-      }
-    }
-  }
-  
-  //============================
-  // Pre-Calculate expiration timers On Round Start
-  //  (this includes from rounding starting to end of votes)
-  //============================
-  
-  //expirationTimer will be a copy of TIMER constant with time values which indecate when a state expires
-  
-  var expirationTimer = {};
-  function preCalculateExpirationTimers() {
-    var timeNow = now();
-    var previousTimer = 0;
-    for(var i in TIMER) {
-      roundTimers[i] = timeNow + TIMER[i] + previousTimer;
-      previousTimer = TIMER[i];
-    }
-  }
-  
-  //Expiration Utility functions
-  function roundStartingHasExpired() { return now() >= expirationTimer['ROUND_STARTING']; }
-  function waitingForPostsHasExpired() { return now() >= expirationTimer['WAITING_FOR_POSTS']; }
-  function waitingForVotesHasExpired() { return now() >= expirationTimer['WAITING_FOR_VOTES']; }
-  
-  
-  //Utility functions
-  function isRoundStarting() { return getState() == STORY_STATE.ROUND_STARTING; }
-  function isWaitingForPlayers() { return getState() == STORY_STATE.WAITING_FOR_PLAYERS; }
-  function isWaitingForPosts() { return getState() == STORY_STATE.WAITING_FOR_POSTS; }
-  function isWaitingForVotes() { return getState() == STORY_STATE.WAITING_FOR_VOTES; }
-  
-  function setState(stateToSetStr) {
-    if(STORY_STATE[stateToSetStr] === undefined) throw("Tying to set illegal story state " + stateToSetStr);
-    
-    _state = STORY_STATE[stateToSetStr];
-  }
-  
-  //Gets time elapsed from the last roundTimeStamp to now
-  function getTimeElapsed() {
-    return now() - _roundTimeStamp;
-  }
+});
+
+
   
   //====================================
   // Round Over. 
@@ -143,13 +101,3 @@ function Story(attributes) {
   //  *Set State to 'waiting to players'.
   //  -Update versionIndex.
   //====================================
-  function roundIsOver() {
-    
-  }
-  
-  //Public Interface
-  return {
-    
-  }
-  
-}

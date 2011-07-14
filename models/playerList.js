@@ -70,12 +70,12 @@ function PlayerList(maxPlayers) {
     }
     
     function createPlayerStruct(id) {
-        var _update_at = now();
+        var _update_at = Date.now();
         return {
             post: null,
             id: id,
             updatedAt: function() { return _update_at; },
-            update: function() { _update_at = now(); }
+            update: function() { _update_at = Date.now(); }
         }
     }
     
@@ -89,5 +89,3 @@ function PlayerList(maxPlayers) {
         resetPostBinds: resetPostBinds
     }
 }
-
-function now() { return (new Date()).getTime(); }

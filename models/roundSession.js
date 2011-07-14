@@ -1,7 +1,5 @@
 var Base = require('./base.js');
 
-function now() { return (new Date()).getTime(); }
-
 module.exports.create = function(maxRounds, cb) {
     cb(new RoundSession(maxRounds));
 }
@@ -40,7 +38,6 @@ Base.extend(RoundSession, {
     _state: STATE.IDLE,
     _update: function() {
         //In case any of the state has expired, it will fall through the next case.
-        console.log("State is", this._state );
         switch(this._state) {
             case STATE.ROUND_STARTING:
                 //set round to 'waiting for posts' if 'round starting' has expired
@@ -66,14 +63,14 @@ Base.extend(RoundSession, {
         this._setState(STATE.IDLE);
         this.current(this.current() + 1);
     },
-    _roundStartingExpired: function() { return now() >= this._roundExpiration; },
-    _waitingForPostExpired: function() { return now() >= this._postExpiration; },
-    _waitingForVoteExpired: function() { return now() >= this._voteExpiration; },
+    _roundStartingExpired: function() { return Date.now() >= this._roundExpiration; },
+    _waitingForPostExpired: function() { return Date.now() >= this._postExpiration; },
+    _waitingForVoteExpired: function() { return Date.now() >= this._voteExpiration; },
     _roundExpiration: 0,
     _postExpiration: 0,
     _voteExpiration: 0,
     _calculateExpirations: function() {
-        var timeNow = now();
+        var timeNow = Date.now();
         this._roundExpiration = timeNow + TIMERS.ROUND_STARTING;
         this._postExpiration = this._roundExpiration + TIMERS.POST;
         this._voteExpiration = this._postExpiration + TIMERS.VOTE;
@@ -82,7 +79,7 @@ Base.extend(RoundSession, {
     //Returns remaining timer (in ms) of the current session
     sessionEndsIn: function() {
         var timer = null;
-        var timeNow = now();
+        var timeNow = Date.now();
         switch(this._state) {
             case STATE.ROUND_STARTING:
                 timer = this._roundExpiration - timeNow;

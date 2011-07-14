@@ -8,7 +8,7 @@ module.exports.start = function() {
     testPosts(function() {
         testRoundSession(function() {
             testPostCollections(function() {
-                title("TESTS FINISHED");
+                summary();
             });
         });
     });
@@ -110,11 +110,20 @@ function failTest(message) {
     console.log('-FAIL\t' + message);
 }
 
+function summary() {
+    title((fail + pass) + " tests run! " + fail + " failed and " + pass + " passed");
+}
+
+var fail = 0;
+var pass = 0;
+
 function ok(test, message) {
     if(test === true) {
         passTest(message);
+        pass++;
     } else {
         failTest(message);
+        fail++;
     }
 }
 
