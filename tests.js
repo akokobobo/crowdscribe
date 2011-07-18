@@ -6,7 +6,7 @@ var RoundSession = require('./models/roundSession.js');
 var Story = require('./models/story.js');
 
 module.exports.start = function() {
-    testPosts(function() {
+    /*testPosts(function() {
         testRoundSession(function() {
             testPostCollections(function() {
                 testStory(function() {
@@ -14,6 +14,9 @@ module.exports.start = function() {
                 });
             });
         });
+    });*/
+    testStory(function() {
+        summary();
     });
     
 }
@@ -97,6 +100,12 @@ function runRoundSession(round, cb, checkOver) {
 
 function testStory(done) {
     title("Testing Story...");
+    //Messages;
+    
+    var msg2 = "And i needed to pee!";
+    var msg3 = "In someone else's bed";
+    var msg4 = "Besides a curb";
+    
     //Create Story
     var players = [123, 124, 125, 126, 127, 128, 129, 130];
     var rounds = 6;
@@ -108,14 +117,67 @@ function testStory(done) {
         equal(story.maxPlayers(), maxPlayers, "Max Players is ok");
         equal(story.currentRound(), 1, "current round is 1");
         equal(story.state(), 1, "State is idle");
-        title("peak story data");
-        Story.find(story.id(), function(data) {
-            console.log(data);
+        
+        
+        //try to post a message
+        story.post(msg2, players[0], function(success) {
+            ok(!success, "Could not post");
+            //try to vote
+            ok(!story.vote(1, players[0]), "Could not vote");
+            //player 2 joins
+            ok(!story.join(players[0]), "Player could not join");
+            equal(story.playerList().length, 1, "Still only 1 player");
+            equal(story.playerList()[0].toString(), players[0].toString(), "And the player in story is the creator");
             
-            done();
+            //2 new players join and the game should start
+            story.join(players[1]);
+            story.join(players[2]);
+            ok(story.roundSession().isStarting(), "Story is starting...");
+            
+            //players should not be able to post or vote
+            story.post(msg2, players[1], function(success) {
+                ok(!success, "Could not post again.");
+                ok(!story.vote(1, players[1]), "Could not vote again");
+            
+                setTimeout(function() {
+                    //players should be allowed to post but not vote
+                    ok(story.roundSession().isWaitingForPosts(), "Watiting for Posts");
+                    story.post(msg2, players[0], function(s1) {
+                        story.post(msg3, players[1], function(s2) {
+                            story.post(msg3, players[2], function(s3) {
+                                ok(s1 === true && s2 === true && s3 === true, "All posts where a success");
+                                
+                                //Getting ready to vote
+                                setTimeout(function() {
+                                    var posts = story.posts();
+                                    //voting
+                                    ok(!story.vote(posts[0].id, players[0]), "Player could not vote on his own post");
+                                    ok(story.vote(posts[0].id, players[1]), "Success Vote");
+                                    ok(story.vote(posts[0].id, players[2]), "Success Vote");
+                                    var posts = story.posts();
+                                    equal(posts[0].voteCount, 2, "Post has 2 votes");
+                                    
+                                    done();
+                                    /*
+                                    title("peak story data");
+                                    Story.find(story.id(), function(data) {
+                                        console.log(data);
+                                        
+                                        done();
+                                    });*/
+                                }, story.roundSession().sessionEndsIn() + 10);
+                            });
+                        });
+                    });
+                    
+                    
+                }, story.roundSession().sessionEndsIn() + 10);
+            });
         });
     });
 }
+
+
 
 
 
@@ -128,10 +190,12 @@ function title(message) {
 
 function passTest(message) {
     console.log('+\t' + message);
+    pass++;
 }
 
 function failTest(message) {
     console.log('-FAIL\t' + message);
+    fail++;
 }
 
 function summary() {
@@ -144,10 +208,8 @@ var pass = 0;
 function ok(test, message) {
     if(test === true) {
         passTest(message);
-        pass++;
     } else {
         failTest(message);
-        fail++;
     }
 }
 

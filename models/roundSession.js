@@ -126,5 +126,6 @@ Base.extend(RoundSession, {
     isOver: function() {
         return this.isIdle() && this.current() > this.max();
     },
-    save: function() { /*This model does not save*/ }
+    save: function() { /*This model does not save*/ },
+    toString: function() { this.current().toString(); }
 });

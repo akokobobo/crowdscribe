@@ -76,18 +76,6 @@ app.get('/stories', function(req, res) {
   res.send(Story.all());
 });
 
-/**
- * Creates a story
- * @param {String} message The first post body message
- * @param {Number} maxPlayers, the maximum ammount of players that may join
- * @param {String} name, optional story name
- * @returns {Number} the story id created.
- */
-app.get('/story/create', function(req, res) {
-  
-});
-
-
 
 /**
  * Creates a story

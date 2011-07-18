@@ -27,6 +27,8 @@ exports.find = function(modelName, id, cb) {
     db.get(modelName + ':' +id, cb);
 }
 
+module.exports.classPrototype = Base.prototype;
+
 function Base() {}
 
 Base.prototype._attrs = ['id', 'name'];
