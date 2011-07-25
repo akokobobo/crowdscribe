@@ -103,9 +103,18 @@ Base.extend(RoundSession, {
             this._calculateExpirations();
         }
     },
+    _stateChanged: false,
+    stateChanged: function() {
+        return this._stateChanged;
+    },
     state: function(preventUpdate) {
-        if(preventUpdate !== true)
-            this._update();
+        var oldState = this._state;
+        //prevent from updating
+        if(preventUpdate !== true) this._update();
+        
+        if(oldState === this._state) this._stateChanged = false;
+        else this._stateChanged = true;
+        
         return this._state;
     },
     _setState: function(state) {
@@ -127,5 +136,13 @@ Base.extend(RoundSession, {
         return this.isIdle() && this.current() > this.max();
     },
     save: function() { /*This model does not save*/ },
-    toString: function() { this.current().toString(); }
+    toString: function() { this.current().toString(); },
+    info: function() {
+        return {
+            current: this.current(),
+            max: this.max(),
+            state: this._state,
+            expires: this.sessionEndsIn()
+        }
+    }
 });

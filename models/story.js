@@ -49,6 +49,10 @@ function Story(maxPlayers, createdById, maxRounds, title) {
 Base.extend(Story, {
   attrs: ['createdById', 'maxPlayers', 'minPlayers', 'roundSession', 'title', 'stream', 'postCollection'],
   _playerList: {},
+  _version: 1,
+  updateVersion: function() {
+    this._version++;
+  },
   playerList: function() {
     var u = [];
     for(var id  in this._playerList) {
@@ -76,13 +80,16 @@ Base.extend(Story, {
     return (this.roundSession().isIdle() && !this.isRoomFull() && this.createdById() !== uid);
   },
   _tryToStartRound: function() {
-    if(this.playerList().length >= MIN_PLAYERS)
+    if(this.playerList().length >= MIN_PLAYERS) {
       this.roundSession().start();
+      this.updateVersion();
+    }
   },
   join: function(uid) {
     if(this._isOkToJoin(uid)) {
       this._playerList[uid] = Date.now();
       this._tryToStartRound();
+      this.updateVersion();
       return true;
     } else
       return false;
@@ -90,14 +97,15 @@ Base.extend(Story, {
   leave: function(uid) {
     if(this._playerList[uid] !== undefined) {
       delete this._playerList[uid];
+      this.updateVersion();
       return true;
     }
     else
       return false;
   },
-  posts: function() {
+  postsInfo: function() {
     if(this.postCollection())
-      return this.postCollection().posts();
+      return this.postCollection().postsInfo();
     else
       return [];
   },
@@ -106,24 +114,32 @@ Base.extend(Story, {
       //create PollCollection and recall this fuction
       var context = this;
       PostCollection.create(function(collection) {
+        //setting collection
         context.postCollection(collection);
+        //and recalling the function
         context.post(message, uid, cb);
       });
       return;
     }
     
     //PollCollection exisits, lets start posting
-    if(message &&
-       this.isPlaying(uid) &&
-       this.roundSession().isWaitingForPosts())
-      this.postCollection().add(message, uid, cb);
-    else
+    if(message && this.isPlaying(uid) && this.roundSession().isWaitingForPosts()) {
+      this.postCollection().add(message, uid, function(success) {
+        if(success)
+          this.updateVersion();
+        cb(success);
+      });
+    } else {
       cb(false);
+    }
   },
   vote: function(postId, uid) {
     if(this.roundSession().isWaitingForVotes() && this.postCollection()) {
       var post = this.postCollection().find(postId);
-      if(post) return post.vote(uid);
+      if(post && post.vote(uid)) {
+          this.updateVersion();
+          return true;
+      }
     }
     
     return false;
@@ -132,7 +148,9 @@ Base.extend(Story, {
     return this.roundSession().current();
   },
   state: function() {
-    return this.roundSession().state();
+    var roundState = this.roundSession().state();
+    if(this.roundSession().stateChanged()) this.updateVersion();
+    return roundState;
   },
   
   //overwrites Base.save
@@ -147,6 +165,75 @@ Base.extend(Story, {
         cb(success);
       }
     }]);
+  },
+  
+  _getWinnerPosts: function() {
+    var winnerPost = [];
+    var highVote = 0;
+    var posts = this.posts();
+    
+    while(posts.length) {
+      var post = posts.pop();
+      
+      if(post.voteCount() > highVote) {
+        winnerPost = [];
+        winnerPost.push(post);
+        highVote = post.voteCount();
+      } else if (post.voteCount() === highVote) {
+        winnerPost.push(post);
+      }
+    }
+    return winnerPost;
+  },
+  
+  
+  _calculateWinnerAndUpdateScore: function() {
+   var winnerPosts = this._getWinnerPosts(0);
+    var runnerUp = [];
+    if(winnerPosts) {
+      //select a winner at random.
+      winner = winnerPosts.splice(Math.floor(Math.random() * winnerPosts.length), 1)[0];
+      runnerUp = winnerPosts;
+    }
+    
+    if(!runnerUp.length) runnerUp = this._getRunnerUp(winner.voteCount());
+    
+  },
+  
+  update: function() {
+    var somethingChanged = false;
+    //============
+    //Round Idle
+    //============
+    if(this.roundSession().isIdle()) {
+      //round switched over
+      if(this.roundSession().stateChanged()) {
+        this._calculateWinnerAndUpdateScore();
+        this._tryToStartRound();
+        this.updateVersion();
+      } else {
+        this._tryToStartRound();
+        this.updateVersion();
+      }
+    }
+  },
+  
+  info: function() {
+    return {
+      id: this.id(),
+      posts: this.postsInfo(),
+      round: this.roundSession().info(),
+      playerList: this.playerList()
+    }
+  },
+  
+  get_update: function(version) {
+    this.update();
+    //client is up to date
+    if(parseInt(version) === this._version) return 1;
+    
+    
+    return this.info();
   }
 });
 

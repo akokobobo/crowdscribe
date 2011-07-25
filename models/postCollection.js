@@ -46,6 +46,13 @@ Base.extend(PostCollection, {
     posts: function() {
         var posts = [];
         for(var i in this._userPosts) {
+            posts.push(this._userPosts[i]);
+        }
+        return posts;  
+    },
+    postsInfo: function() {
+        var posts = [];
+        for(var i in this._userPosts) {
             posts.push(this._userPosts[i].info());
         }
         return posts;
