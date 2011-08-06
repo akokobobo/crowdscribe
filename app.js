@@ -9,10 +9,10 @@ var redis = redisModule.createClient();
 redis.select(1);
 this.redis = redis;
 
-var test = require('./tests.js');
-test.start();
+//var test = require('./tests.js');
+//test.start();
 
-var Story = require('./models/story.js');
+var Story = require('./models/story.v2.js');
 var Authenticate = require('./authenticate.js');
 var currentUser = module.exports.currentUser = null;
 
@@ -49,7 +49,11 @@ app.use(express.cookieParser());
 // Routes
 
 app.get('/', function(req, res){
-  res.render('index');
+  res.render('index', {
+    locals: {
+      stories: JStory.all()
+    }
+  });
 });
 
 /**
@@ -196,3 +200,10 @@ app.post('/story/:id/vote', function(req, res) {
 
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+
+Story.create(9, 1, 10000, "There once was a boy with a fiddle...", function() {})
+Story.create(9, 1, 10000, "Bill Clinton takes a puff of his cigar...", function() {})
+Story.create(9, 1, 10000, "Superman wakes up, puts on his suit and...", function() {})
+Story.create(9, 1, 10000, "A guy named Adrian is about to win a million dollars...", function() {})
+Story.create(9, 1, 10000, "99 bottles of beer on the wall, 99 bottles of beer...", function() {})
+Story.create(9, 1, 10000, "16 years ago today, I lost my eye in the war...", function() {})

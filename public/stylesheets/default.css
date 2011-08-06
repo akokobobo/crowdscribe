@@ -26,6 +26,9 @@ footer { padding: 15px 0 0 0; margin: 25px 0 0 0; border-top: 1px solid #ccc; }
 #story h2 { padding: 0 0 15px 0; }
 #story .stream { margin: 0 0 25px 0; }
 #story .stream li { display: inline; line-height: 2; font-size: 16px; text-indent: 5px hanging; padding: 5px; background: #f3f3f3; }
-#story .current-round {}
-#story .current-round .entries {}
-#story .current-round .entries li {}
+
+#current-round #entries {}
+#current-round #entries:hover ul li a { color: #fff; background: #ccc; color: #00B7FF; }
+#current-round #entries:hover ul li:hover a { background: #f3f3f3; }
+#current-round #entries ul li { margin-bottom: 5px; }
+#current-round #entries ul li a { line-height: 2; font-size: 16px; text-indent: 5px hanging; padding: 5px; background: #f3f3f3; text-decoration: none; }
