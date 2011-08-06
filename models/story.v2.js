@@ -22,6 +22,14 @@ module.exports.create = function(maxPlayers, createdById, maxRounds, title, cb) 
   
 }
 
+module.exports.all = function() {
+  var all = [];
+  for(var i in storiesById) {
+    all.push(storiesById[id]);
+  }
+  return all;
+}
+
 var find = module.exports.find = function(id, cb) {
   cb(storiesById[id] || null);
 }
