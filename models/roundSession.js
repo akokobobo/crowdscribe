@@ -151,4 +151,4 @@ RoundSession.prototype =  {
             expires: this.sessionEndsIn()
         }
     }
-});
+}

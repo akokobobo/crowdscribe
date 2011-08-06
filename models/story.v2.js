@@ -18,8 +18,6 @@ module.exports.create = function(maxPlayers, createdById, maxRounds, title, cb) 
   if(maxPlayers > MAX_MAX_PLAYERS) maxPlayers = MAX_MAX_PLAYERS;
   
   cb(new Story(maxPlayers, createdById, maxRounds, title));
-  
-  
 }
 
 module.exports.all = function() {

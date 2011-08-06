@@ -9,8 +9,8 @@ var redis = redisModule.createClient();
 redis.select(1);
 this.redis = redis;
 
-var test = require('./tests.js');
-test.start();
+//var test = require('./tests.js');
+//test.start();
 
 var Story = require('./models/story.js');
 var Authenticate = require('./authenticate.js');
