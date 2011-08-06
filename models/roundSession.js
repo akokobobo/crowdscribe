@@ -29,12 +29,14 @@ var TIMERS = {
 var PREVENT_UPDATE = true;
 
 function RoundSession(maxRounds) {
-    this.attributes({max: maxRounds, current: 1});
+    this.max = maxRounds;
+    this.current = 1;
 }
 
 
-Base.extend(RoundSession, {
-    attrs: ['max', 'current'],
+RoundSession.prototype =  {
+    max: 10,
+    current: 1,
     _state: STATE.IDLE,
     _update: function() {
         //In case any of the state has expired, it will fall through the next case.
@@ -61,7 +63,7 @@ Base.extend(RoundSession, {
     },
     _roundEnded: function() {
         this._setState(STATE.IDLE);
-        this.current(this.current() + 1);
+        this.current(this.current + 1);
     },
     _roundStartingExpired: function() { return Date.now() >= this._roundExpiration; },
     _waitingForPostExpired: function() { return Date.now() >= this._postExpiration; },
@@ -101,7 +103,9 @@ Base.extend(RoundSession, {
         if(this.isIdle()) {
             this._setState(STATE.ROUND_STARTING);
             this._calculateExpirations();
+            return true;
         }
+        return false;
     },
     _stateChanged: false,
     stateChanged: function() {
@@ -120,6 +124,10 @@ Base.extend(RoundSession, {
     _setState: function(state) {
       this._state = state;  
     },
+    IDLE: STATE.IDLE,
+    ROUND_STARTING: STATE.ROUND_STARTING,
+    WAITING_FOR_POSTS: STATE.WAITING_FOR_POSTS,
+    WAITING_FOR_VOTES: STATE.WAITING_FOR_VOTES,
     isIdle: function() {
         return this.state() === STATE.IDLE;
     },
@@ -133,14 +141,12 @@ Base.extend(RoundSession, {
         return this.state() === STATE.WAITING_FOR_VOTES;
     },
     isOver: function() {
-        return this.isIdle() && this.current() > this.max();
+        return this.isIdle() && this.current > this.max;
     },
-    save: function() { /*This model does not save*/ },
-    toString: function() { this.current().toString(); },
     info: function() {
         return {
-            current: this.current(),
-            max: this.max(),
+            current: this.current,
+            max: this.max,
             state: this._state,
             expires: this.sessionEndsIn()
         }

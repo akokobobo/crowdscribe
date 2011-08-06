@@ -49,6 +49,9 @@ Base.extend(Post, {
     if(this._submitedVotes[userId] !== undefined) return true;
     return false;
   },
+  user: function() {
+    return User.find(this.userId());
+  },
   info: function() {
     return {
       id: this.id(),

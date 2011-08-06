@@ -16,6 +16,12 @@ var Story = require('./models/story.js');
 var Authenticate = require('./authenticate.js');
 var currentUser = module.exports.currentUser = null;
 
+
+
+//========================
+// OLD STUFF
+//========================
+
 var app = module.exports = express.createServer();
 
 // Configuration
