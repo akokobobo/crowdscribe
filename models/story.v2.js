@@ -22,7 +22,7 @@ module.exports.create = function(maxPlayers, createdById, maxRounds, title, cb) 
 
 module.exports.all = function() {
   var all = [];
-  for(var i in storiesById) {
+  for(var id in storiesById) {
     all.push(storiesById[id]);
   }
   return all;
@@ -53,6 +53,9 @@ Story.prototype = {
   title: null,
   roundSession: null,
   postCollections: null,
+  currentRound: function() {
+    return this.roundSession.current;
+  },
   
   
   connections: {},

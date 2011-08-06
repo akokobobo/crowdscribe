@@ -13,6 +13,37 @@
     
       {{>_footer}}
     </div>
-  </body>
+  <div id="fb-root"></div>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({appId: '141401789220552', status: true, cookie: true,
+               xfbml: true});
+      
+      FB.getLoginStatus(function(response) {
+        if (response.session) {
+          console.log('logged in');
+        }
+        else {
+          console.log('not logged in'+ JSON.stringify(response));
+        }
+      })
+
+      FB.Event.subscribe('auth.sessionChange', function(response) {
+        console.log('The status of the session is: '+ response.status);
+      });
+
+      FB.Event.subscribe('auth.login', function(response) {
+        console.log('The status of the login is: '+ response.status);
+      });
+
+    };
+    (function() {
+      var e = document.createElement('script'); e.async = true;
+      e.src = document.location.protocol +
+        '//connect.facebook.net/en_US/all.js';
+      document.getElementById('fb-root').appendChild(e);
+    }());
+  </script>
+  </body>
 </html>

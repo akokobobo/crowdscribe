@@ -1,27 +1,39 @@
 <div id="story">
-  <h2>The story so far...</h2>
-  <ol class="stream">
-    <li>It was a dark and stormy night...</li>
-    <li>Nam vel tincidunt nunc. Curabitur accumsan nisi neque, et aliquam ante. Mauris pulvinar commodo elit id suscipit.</li>
-    <li>Integer mattis, est vel sollicitudin egestas, lectus dui ultrices felis, eu placerat nunc diam vitae justo.</li>
+  <h1>The story so far...</h1>
+  <ol>
+    <li class="entry">
+      <span class="content">It was a dark and stormy night...</span>
+    </li>
   </ol>
 </div>
 
-<div id="current-round">
-  <h2>Round 3 <span>:60</span></h2>
-  <div id="entry">
+<div id="round">
+  <h2>Round 3 <span class="timer">:60</span></h2>
+
+  <div class="entry-form">
     <form>
-	    <textarea name="entry"></textarea>
-	    <button type="submit">Submit!</button>
+      <textarea name="entry"></textarea>
+      <button type="submit">Submit!</button>
     </form>
   </div>
 
   <div id="entries">
-    <ul>
-      <li><a href="#">Such a polite knock. A bit like Mr Marsden from the Pru used when he came to collect his money every month.</a></li>
-      <li><a href="#">A firm knock but not one designed to alarm. Knock, knock, knock, as if by a gloved hand, which was the case.</a></li>
-      <li><a href="#">Jimmy knew it was the soldiers. He had seen them walking along the road, past the troop carriers, six of them in uniform, carrying guns.</a></li>
-      <li><a href="#">Manuel had passed the fish on his way up the road. It was eighteen to twenty inches long and its silvery scales were covered with dirt.</a></li>
-    </ul>
+    <ol>
+      <li class="entry">
+        <span class="content">Manuel had passed the fish on his way up the road. It was eighteen to twenty inches long and its silvery scales were covered with dirt.</span>
+        <span class="score"></span>
+        <button class="vote">Vote</button>
+        <div class="metadata"></div>
+      </li>
+    </ol>
   </div>
+
+</div>
+
+<div id="players">
+  <ul>
+    <li class="player">
+      <span class="name">Robert Coker</span> (<span class="points">12</span>)
+    </li>
+  </ul>
 </div>

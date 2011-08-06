@@ -1,5 +1,5 @@
-exports.create = function(cb) {
-    cb(new PostCollection());
+exports.create = function() {
+    return new PostCollection();
 }
 
 function PostCollection() {
