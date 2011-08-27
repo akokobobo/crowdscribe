@@ -18,7 +18,7 @@ var ten = (10).seconds();
 var thirty = (30).seconds();
 var minute = (30).minutes();
 
-var time = halfSecond;
+var time = thirty;
 
 var TIMERS = {
   ROUND_STARTING: time,
@@ -63,7 +63,7 @@ RoundSession.prototype =  {
     },
     _roundEnded: function() {
         this._setState(STATE.IDLE);
-        this.current(this.current + 1);
+        this.current += 1;
     },
     _roundStartingExpired: function() { return Date.now() >= this._roundExpiration; },
     _waitingForPostExpired: function() { return Date.now() >= this._postExpiration; },

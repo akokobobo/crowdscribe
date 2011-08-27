@@ -1,4 +1,5 @@
 <div id="story">
+  <input type="hidden" id="story-id" value="{{id}}" />
   <h1>The story so far...</h1>
   <ol>
     <li class="entry">
@@ -8,7 +9,8 @@
 </div>
 
 <div id="round">
-  <h2>Round 3 <span class="timer">:60</span></h2>
+  <h2>Round 3</h2>
+  <h4><span class="state">Starting in</span> <span class="timer">2:60</span></h4>
 
   <div class="entry-form">
     <form>
@@ -37,3 +39,7 @@
     </li>
   </ul>
 </div>
+
+<script type="text/javascript" src="/js/io/socket.io.min.js"></script>
+<script type="text/javascript" src="/js/story.js"></script>
+

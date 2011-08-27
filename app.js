@@ -14,7 +14,7 @@ this.redis = redis;
 
 var Story = require('./models/story.v2.js');
 var Authenticate = require('./authenticate.js');
-var currentUser = module.exports.currentUser = null;
+require('./storySocketController.js');
 
 
 
@@ -51,7 +51,7 @@ app.use(express.cookieParser());
 app.get('/', function(req, res){
   res.render('index', {
     locals: {
-      stories: JStory.all()
+      stories: Story.all()
     }
   });
 });
@@ -113,8 +113,8 @@ app.get('/story/create', function(req, res) {
  * @param {Array} fields of story to be returned. ID is passed by default
  */
 app.get('/story/:id', function(req, res) {
-  Story.find(req.params('id'), function(story) {
-    res.send(story ? story.info() : 'Story not found');
+  Story.find(req.params['id'], function(story) {
+    res.render('story', {locals: { id: story.id }});
   });
 });
 
@@ -202,8 +202,8 @@ app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 Story.create(9, 1, 10000, "There once was a boy with a fiddle...", function() {})
-Story.create(9, 1, 10000, "Bill Clinton takes a puff of his cigar...", function() {})
+/*Story.create(9, 1, 10000, "Bill Clinton takes a puff of his cigar...", function() {})
 Story.create(9, 1, 10000, "Superman wakes up, puts on his suit and...", function() {})
 Story.create(9, 1, 10000, "A guy named Adrian is about to win a million dollars...", function() {})
 Story.create(9, 1, 10000, "99 bottles of beer on the wall, 99 bottles of beer...", function() {})
-Story.create(9, 1, 10000, "16 years ago today, I lost my eye in the war...", function() {})
+Story.create(9, 1, 10000, "16 years ago today, I lost my eye in the war...", function() {})*/

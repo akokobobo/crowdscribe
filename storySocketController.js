@@ -6,6 +6,7 @@ var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket['user'] = socket.handshake.user;
+  console.log("USER-->>", socket.user);
   /*
    story:post - emit/listen
 story:tick - emit/listen
@@ -18,10 +19,12 @@ round:waiting_for_votes - listen
 round:switch - listen
 score:update
 
+player:joined
+
 */
   //Listen for disconnect
   socket.on('disconnect', function () {
-    sockets.emit('user disconnected');
+    socket.emit('user disconnected');
   });
   
   //story params {id: 1}
@@ -36,7 +39,7 @@ score:update
         //creates listeners for posting, voting etc...
         createSocketListeners(socket);
         //emit story info to client
-        socket.emit('story:info', stry.info());
+        socket.emit('story:joined', stry.info());
       }
       else
         socket.emit('join_error');
@@ -54,17 +57,18 @@ score:update
       socket.story.vote(vote.postId, socket);
     });
     
-    socket.on('tick', function() {
+    /*socket.on('tick', function() {
       socket.story.tick();
-    });
+    });*/
   }
 });
 
 //SOCKET AUTHENTICATE
 io.configure(function (){
   io.set('authorization', function (handshakeData, callback) {
+    var cookie = handshakeData.headers.cookie || '';
     
-    var user = Authenticate.user(handshakeData.headers.cookie);
+    var user = Authenticate.user(cookie);
     handshakeData['user'] = user;
     callback(
       user !== null ? undefined : "Count not authenticate",

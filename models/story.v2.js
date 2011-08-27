@@ -2,12 +2,21 @@ var RoundSession = require('./roundSession.js');
 var PostCollection = require('./postCollection.v2.js');
 var User = require('./user.js');
 
+//Start story loop
+(function() {
+  setInterval(function() {
+    for(var id in storiesById) {
+      storiesById[id].tick();
+    }
+  }, 3000);
+})();
+
 var storiesById = {};
 var ids = 1;
 
 var MODEL_NAME = 'Story';
 
-var MIN_PLAYERS = 3;
+var MIN_PLAYERS = 2;
 var MAX_MAX_PLAYERS = 20;
 var DEFAULT_STORY_TITLE = 'It was a dark and stormy night.';
 var POST_CHAR_LIMIT = 500;
@@ -56,8 +65,12 @@ Story.prototype = {
   currentRound: function() {
     return this.roundSession.current;
   },
-  
-  
+  players: function() {
+    var players = [];
+    for(var id in this.connections)
+        players.push(this.connections[id].user.info());
+    return players;
+  },
   connections: {},
   playerCount: function() {
     var count = 0;
@@ -74,7 +87,7 @@ Story.prototype = {
   },
   isRoomFull: function() { return !(this.playerCount() < this.maxPlayers);  },
   addConnection: function(socket) {
-      this.connection[socket.trasport.sessionid] = socket;
+      this.connections[socket.id] = socket;
   },
   broadcast: function(event, data, excludeSocket) {
       for(var id in this.connections) {
@@ -89,22 +102,23 @@ Story.prototype = {
       if(this.okToJoin(socket)) {
           this.addConnection(socket);
           //broadcast user joined
-          this.broadcast('join', socket.user.info(), socket);
+          this.broadcast('player:joined', socket.user.info(), socket);
           return true;
       }
       return false;
   },
   post: function(message, socket) {
     if(message && this.isPlayerConnected(socket) && this.roundSession.isWaitingForPosts()) {
-      if(this.postCollection.add(message, socket.user.id)) {
+      if(this.postCollections.add(message, socket.user.id)) {
         return true;  
       }
     }
     return false;
   },
+  stream: [],
   vote: function(postId, socket) {
     if(this.roundSession.isWaitingForVotes()) {
-      var post = this.postCollection.find(postId);
+      var post = this.postCollections.find(postId);
       if(post && post.vote(socket.user.id))
         return true;
     }
@@ -112,25 +126,35 @@ Story.prototype = {
     return false;
   },
   _calculateWinnerAndUpdateScore: function() {
-    var result = this.postCollection().getWinnerAndRunnerUp();
+    var result = this.postCollections.getWinnerAndRunnerUp();
     if(!result.winner) return;
     
-    this.postCollection().posts().forEach(function(post, i, arr) {
+    this.postCollections.posts().forEach(function(post, i, arr) {
       post.user().score += 1;
     });
     
     result.winner.user().score += 4;
     result.runnerUp.user().score += 2;
     
+    this.stream.push(result.winner.info());
+    
     this.broadcast('score:update', {winner: result.winner.userId, runnerUp: result.runnerUp.userId});
   },
   tick: function() {
+    if (this.playerCount() == 0) return;
+    
+    console.log('-------------',Date.now(), ' Tick --------------');
+    
     var state = this.roundSession.state();
     var stateChanged = this.roundSession.stateChanged();
+    
+    console.log("stage: ", state, stateChanged, "players", this.playerCount())
+      
     if(state === this.roundSession.IDLE) {
       //round switched over
       if(stateChanged) {
         this._calculateWinnerAndUpdateScore();
+        console.log("Calculated winners");
       }
       //start round
       this.roundStart();
@@ -152,16 +176,17 @@ Story.prototype = {
         default:
         break;
       }
-      
       if(channel)
         this.broadcast(channel);
     }
+    console.log("---------------------------------");
   },
   
   roundStart: function() {
     if(this.roundSession.isIdle() && this.playerCount() >= this.minPlayers) {
+      console.log("round is starting");
       this.roundSession.start();
-      this.broadcast('round:starting');
+      this.broadcast('round:starting', {expires: this.roundSession.sessionEndsIn(), number: this.roundSession.current});
     }
   },
   
@@ -177,7 +202,9 @@ Story.prototype = {
       maxPlayers: this.maxPlayers,
       minPlayers: this.minPlayers,
       roundSession: this.roundSession.state(),
-      postCollections: this.postCollections.postInfo()
+      postCollections: this.postCollections.postInfo(),
+      players: this.players(),
+      stream: this.stream
     };
   }
 }
